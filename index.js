@@ -14,7 +14,7 @@ app.use(
 app.use(express.json());
 /* -------------Mongodb code Here---------------- */
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7s7y6.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://admin:2TGlaIWb3Kri4yt4@cluster0.7s7y6.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
