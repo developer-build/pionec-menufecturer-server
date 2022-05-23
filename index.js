@@ -5,6 +5,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 4000;
 require("dotenv").config();
+//?-------------------Stripe Code ---------------//
+
+const stripe = require("stripe")(
+  "sk_test_51L0iOtAL8nuA0IetwWqmz2Te1188zpj9RJFWB7zwzzvldw2Vv9Yw66d36pAGebRz6MKHHMLQ6yHJ3kZKLNzCNWtq00NnILQF5c"
+);
+
 /* -------------Middle were Here---------------- */
 app.use(
   cors({
@@ -28,6 +34,9 @@ async function run() {
     // ?-------------Data Collection ---------------- *//
 
     const toolsCollection = client.db("pionec-menufecture").collection("tools");
+    const paymentCollection = client
+      .db("pionec-menufecture")
+      .collection("payments");
     const orderCollection = client
       .db("pionec-menufecture")
       .collection("orders");
@@ -60,12 +69,53 @@ async function run() {
       const result = await orders.toArray();
       res.send(result);
     });
+    //single order find
+    app.get("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.findOne(query);
+      res.send(result);
+    });
     // delete data form my order page
     app.delete("/order/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await orderCollection.deleteOne(query);
       res.send(result);
+    });
+    app.patch("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      const payment = req.body;
+      const filter = { _id: ObjectId(id) };
+      // const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+
+      const result = await paymentCollection.insertOne(payment);
+      const updatedBooking = await orderCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(updatedBooking);
+    });
+
+    //?---------------Payment api here----------------//
+    app.post("/create-payment-intent", async (req, res) => {
+      const service = req.body;
+      const price = service.price;
+      const amount = parseInt(price * 100);
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
     });
   } finally {
   }
