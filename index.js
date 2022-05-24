@@ -34,6 +34,9 @@ async function run() {
     // ?-------------Data Collection ---------------- *//
 
     const toolsCollection = client.db("pionec-menufecture").collection("tools");
+    const reviewCollection = client
+      .db("pionec-menufecture")
+      .collection("reviews");
     const paymentCollection = client
       .db("pionec-menufecture")
       .collection("payments");
@@ -58,7 +61,7 @@ async function run() {
     app.post("/order", async (req, res) => {
       const data = req.body;
       const result = await orderCollection.insertOne(data);
-      res.send(data);
+      res.send(result);
     });
 
     // my orders data send form here
@@ -116,6 +119,16 @@ async function run() {
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
+    });
+    //?------------------Review Api Here------------------//
+    app.post("/review", async (req, res) => {
+      const data = req.body;
+      const review = await reviewCollection.insertOne(data);
+      res.send(review);
+    });
+    app.get("/review", async (req, res) => {
+      const data = await reviewCollection.find().toArray();
+      res.send(data);
     });
   } finally {
   }
