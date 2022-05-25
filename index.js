@@ -8,9 +8,7 @@ const port = process.env.PORT || 4000;
 require("dotenv").config();
 //?-------------------Stripe Code ---------------//
 
-const stripe = require("stripe")(
-  "sk_test_51L0iOtAL8nuA0IetwWqmz2Te1188zpj9RJFWB7zwzzvldw2Vv9Yw66d36pAGebRz6MKHHMLQ6yHJ3kZKLNzCNWtq00NnILQF5c"
-);
+const stripe = require("stripe")(process.env.STRIPE_SECRECT_KEY);
 
 /* -------------Middle were Here---------------- */
 app.use(cors());
@@ -33,7 +31,7 @@ function verifyJWT(req, res, next) {
 
 /* -------------Mongodb code Here---------------- */
 
-const uri = `mongodb+srv://admin:2TGlaIWb3Kri4yt4@cluster0.7s7y6.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.7s7y6.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -147,6 +145,22 @@ async function run() {
       const updatedBooking = await orderCollection.updateOne(
         filter,
         updatedDoc
+      );
+      res.send(updatedBooking);
+    });
+    app.patch("/shipping-order/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          ship: true,
+        },
+      };
+      const updatedBooking = await orderCollection.updateOne(
+        filter,
+        updatedDoc,
+        option
       );
       res.send(updatedBooking);
     });
