@@ -180,6 +180,12 @@ async function run() {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
+    app.get("/current-user", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      res.send(result);
+    });
 
     //?----------------Admin----------------//
     app.get("/admin/:email", async (req, res) => {
@@ -220,6 +226,21 @@ async function run() {
         expiresIn: "1d",
       });
       res.send({ result, token });
+    });
+    app.put("/current-user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const option = { upsert: true };
+      const updatedData = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updatedData,
+        option
+      );
+      res.send(result);
     });
   } finally {
   }
