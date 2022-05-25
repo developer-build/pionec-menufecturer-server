@@ -13,11 +13,7 @@ const stripe = require("stripe")(
 );
 
 /* -------------Middle were Here---------------- */
-app.use(
-  cors({
-    origin: "*",
-  })
-);
+app.use(cors());
 app.use(express.json());
 //?-----------------JWT Middleware----------------//
 function verifyJWT(req, res, next) {
@@ -84,9 +80,20 @@ async function run() {
       const result = await toolsCollection.findOne(query);
       res.send(result);
     });
+    app.post("/tool", verifyJWT, verifyAdmin, async (req, res) => {
+      const tool = req.body;
+      const result = await toolsCollection.insertOne(tool);
+      res.send(result);
+    });
+    app.delete("/delete-tool/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await toolsCollection.deleteOne(query);
+      res.send(result);
+    });
 
     //? -------------Orders API  Here---------------- */
-    app.get("/order", async (req, res) => {
+    app.get("/order", verifyJWT, verifyAdmin, async (req, res) => {
       const orders = await orderCollection.find().toArray();
       res.send(orders);
     });
@@ -97,17 +104,19 @@ async function run() {
     });
 
     // my orders data send form here
-    app.get("/order", verifyJWT, async (req, res) => {
+    app.get("/my-order", verifyJWT, async (req, res) => {
       const email = req.query.email;
       const decodedEmail = req.decoded.email;
       if (email === decodedEmail) {
         const query = { email: email };
-        const orders = await orderCollection.find(query).toArray();
-        res.send(orders);
+        const orders = orderCollection.find(query);
+        const result = await orders.toArray();
+        return res.send(result);
       } else {
         return res.status(403).send({ message: "forbidden access" });
       }
     });
+
     //single order find
     app.get("/order/:id", async (req, res) => {
       const id = req.params.id;
