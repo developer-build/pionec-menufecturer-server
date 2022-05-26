@@ -211,14 +211,12 @@ async function run() {
     app.put("/user/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
-      // const option = { upsert: true };
       const updatedData = {
         $set: { role: "admin" },
       };
       const result = await userCollection.updateOne(
         filter,
         updatedData
-        // option
       );
       res.send(result);
     });
