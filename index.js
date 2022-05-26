@@ -147,6 +147,7 @@ async function run() {
       );
       res.send(updatedBooking);
     });
+    // this api for shipping status change / pending to shipped
     app.patch("/shipping-order/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
