@@ -240,7 +240,7 @@ async function run() {
       });
       res.send({ result, token });
     });
-    app.patch("/current-user/:email", async (req, res) => {
+    app.put("/current-user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
@@ -250,7 +250,7 @@ async function run() {
       };
       const result = await userCollection.updateOne(
         filter,
-        updatedData,
+        updatedData, 
         option
       );
       res.send(result);
