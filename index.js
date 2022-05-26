@@ -240,7 +240,7 @@ async function run() {
       });
       res.send({ result, token });
     });
-    app.put("/current-user/:email", async (req, res) => {
+    app.patch("/current-user/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
       const filter = { email: email };
