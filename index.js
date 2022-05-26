@@ -129,18 +129,17 @@ async function run() {
       const result = await orderCollection.deleteOne(query);
       res.send(result);
     });
+    // patch order for checking payment status
     app.patch("/order/:id", async (req, res) => {
       const id = req.params.id;
       const payment = req.body;
       const filter = { _id: ObjectId(id) };
-      // const option = { upsert: true };
       const updatedDoc = {
         $set: {
           paid: true,
           transactionId: payment.transactionId,
         },
       };
-
       const result = await paymentCollection.insertOne(payment);
       const updatedBooking = await orderCollection.updateOne(
         filter,
