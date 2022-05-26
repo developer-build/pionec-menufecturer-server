@@ -67,6 +67,7 @@ async function run() {
         return res.status(403).send({ message: "Forbidded" });
       }
     };
+    //? ------------------Admin Middleware End----------------//
     //? -------------Tools API  Here---------------- */
     app.get("/tool", async (req, res) => {
       const tools = await toolsCollection.find().toArray();
